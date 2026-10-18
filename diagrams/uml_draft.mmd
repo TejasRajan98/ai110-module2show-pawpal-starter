@@ -1,0 +1,95 @@
+classDiagram
+    class Owner {
+        +int id
+        +string name
+        +string email
+        +string phone
+        +addPet(pet Pet) void
+        +removePet(petId int) void
+        +getPets() List~Pet~
+        +getUpcomingTasks(days int) List~Task~
+    }
+
+    class Pet {
+        +int id
+        +string name
+        +string species
+        +string breed
+        +date birthDate
+        +float weightKg
+        +getAge() int
+        +addTask(task Task) void
+        +getTasks() List~Task~
+        +addHealthRecord(record HealthRecord) void
+    }
+
+    class Task {
+        +int id
+        +string title
+        +TaskType type
+        +datetime dueAt
+        +Frequency frequency
+        +Priority priority
+        +bool completed
+        +string notes
+        +markComplete() void
+        +reschedule(newDue datetime) void
+        +isOverdue() bool
+    }
+
+    class HealthRecord {
+        +int id
+        +date recordDate
+        +string description
+        +string vetName
+        +float weightKg
+    }
+
+    class Scheduler {
+        +generateDailyPlan(owner Owner, date date) List~Task~
+        +sortByPriority(tasks List~Task~) List~Task~
+        +detectConflicts(tasks List~Task~) List~Task~
+        +nextOccurrence(task Task) Task
+    }
+
+    class Reminder {
+        +int id
+        +datetime remindAt
+        +bool sent
+        +send() void
+    }
+
+    class TaskType {
+        <<enumeration>>
+        FEEDING
+        WALK
+        MEDICATION
+        GROOMING
+        VET_VISIT
+        PLAY
+    }
+
+    class Frequency {
+        <<enumeration>>
+        ONCE
+        DAILY
+        WEEKLY
+        MONTHLY
+    }
+
+    class Priority {
+        <<enumeration>>
+        LOW
+        MEDIUM
+        HIGH
+    }
+
+    Owner "1" *-- "0..*" Pet : owns
+    Pet "1" *-- "0..*" Task : has
+    Pet "1" *-- "0..*" HealthRecord : logs
+    Task "1" o-- "0..*" Reminder : triggers
+    Task --> TaskType
+    Task --> Frequency
+    Task --> Priority
+    Scheduler ..> Owner : reads
+    Scheduler ..> Task : orders
