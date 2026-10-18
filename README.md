@@ -22,6 +22,18 @@ Your final app should:
 - Display the plan clearly (and ideally explain the reasoning)
 - Include tests for the most important scheduling behaviors
 
+## Implementation summary
+
+The logic layer lives in `pawpal_system.py` (class design in `diagrams/uml.mmd`). `main.py` is a terminal demo and `tests/test_pawpal.py` holds the pytest tests.
+
+- **`Task`** (dataclass): one activity with a title, type, due time, duration, priority, frequency and completion status. It can mark itself complete, reschedule, and report whether it is overdue.
+- **`Pet`** (dataclass): a pet's details plus its own list of tasks and health records. `add_task` stamps the task with the pet's id so a task always knows who it belongs to.
+- **`Owner`** (dataclass): holds multiple pets. `get_all_tasks()` returns every pet's tasks in one list, and `get_upcoming_tasks()` filters that to what is due soon.
+- **`Scheduler`**: the "brain". It reads tasks through `Owner.get_all_tasks()` (never from a single pet), so plans cover all pets. It builds the daily plan (sorted by priority, then time), detects overlapping tasks, and creates the next occurrence of daily/weekly/monthly tasks when one is completed.
+- **Enums** (`TaskType`, `Frequency`, `Priority`) keep task attributes consistent.
+
+How they fit together: an `Owner` has `Pet`s, each `Pet` has `Task`s, and the `Scheduler` takes an `Owner` and works across all of its pets' tasks.
+
 ## Getting started
 
 ### Setup
@@ -47,11 +59,22 @@ pip install -r requirements.txt
 Paste a sample of your app's CLI or Streamlit output here so a reader can see what a generated plan looks like:
 
 ```
-# e.g.:
-# Daily plan for Biscuit (Golden Retriever):
-#   08:00 — Morning walk (30 min) [priority: high]
-#   09:00 — Feeding (10 min) [priority: high]
-#   ...
+$ python main.py
+Today's Schedule for Jordan (Saturday, October 17, 2026)
+========================================================================
+Time    Pet       Task                    Priority  Duration
+------------------------------------------------------------------------
+07:30   Biscuit   Morning walk            High      30 min
+08:00   Biscuit   Heartworm pill          High      5 min
+07:45   Whiskers  Breakfast               Medium    10 min
+18:00   Whiskers  Brush fur               Low       15 min
+------------------------------------------------------------------------
+4 task(s) today
+
+Warning: overlapping tasks:
+  - 07:30 Biscuit: Morning walk
+  - 07:45 Whiskers: Breakfast
+
 ```
 
 ## 🧪 Testing PawPal+
